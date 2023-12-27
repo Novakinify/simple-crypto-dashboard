@@ -55,8 +55,7 @@ display: grid;
 grid-template-columns: repeat(5, 1fr); // Three columns layout
 gap: $gap;
 padding: $gap;
-max-width: 1920px;
-margin: 20px auto;
+margin: 20px;
 
 .card {
     border-radius: $border-radius;
