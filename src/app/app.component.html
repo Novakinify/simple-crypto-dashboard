@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Title -->
+  <title>Cryptocurrency Dashboard</title>
+
+  <!-- Meta Description -->
+  <meta name="description" content="Live updates and statistics on cryptocurrency prices, market cap, volume, and more.">
+
+  <!-- Canonical Link -->
+  <link rel="canonical" href="https://www.yoursite.com/cryptocurrency-dashboard">
+
+  <!-- SEO: Structured Data using JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "FinancialService",
+    "name": "Cryptocurrency Dashboard",
+    "url": "https://www.example.com/cryptocurrency-dashboard",
+    "description": "Track real-time updates and statistics for cryptocurrencies including prices, market cap, and volume."
+  }
+  </script>
+
+
+  <!-- Responsive Meta Tag -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Accessibility: Specify Language -->
+  <meta http-equiv="Content-Language" content="en">
+
+  <!-- SEO: Robots Meta Tag -->
+  <meta name="robots" content="index, follow">
+
+  <!-- Social Media: Open Graph Tags -->
+  <!-- <meta property="og:title" content="Cryptocurrency Dashboard">
+  <meta property="og:description" content="Live updates and statistics on cryptocurrency prices, market cap, volume, and more.">
+  <meta property="og:image" content="/path-to-your/image-for-social-media.jpg">
+  <meta property="og:url" content="https://www.yoursite.com/cryptocurrency-dashboard">
+  <meta property="og:type" content="website"> -->
+
+  <!-- Twitter Card Data -->
+  <!-- <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Cryptocurrency Dashboard">
+  <meta name="twitter:description" content="Live updates and statistics on cryptocurrency prices, market cap, volume, and more.">
+  <meta name="twitter:image" content="/path-to-your/image-for-twitter.jpg"> -->
+
+</head>
+<body>
+  <div class="dashboard">
+    <div role="list" aria-label="Cryptocurrency List">
+      <!-- Looping through the coin market data using Angular Built in *ngFor Directive -->
+      <div *ngFor="let coin of marketData" class="card" @cardAnimation
+      [ngStyle]="{'background-color': getPercentageColor(coin.price_change_percentage_24h)}">
+  
+        <div class="card-header">
+          <!-- Displaying the coin name and setting it to uppercase using angular built in pipe -->
+          <h2>{{ coin.name }} ({{ coin.symbol.toUpperCase() }})</h2>
+          <p>
+            <!-- Displaying and calculating price change for the current day (in percentage and absolute terms) -->
+            {{ coin.price_change_percentage_24h | number:'1.2-2' }}% = {{ coin.price_change_24h | number:'1.2-2' }}
+          </p>
+        </div>
+        <div class="card-body">
+          <div class="price-container">
+            <div class="current-price">
+              <!-- Displaying the current price for the coin and format using angular built in pipe -->
+              <h3>${{ coin.current_price | number:'1.0-2' }}</h3>
+            </div>
+            <div class="high-low-prices">
+              <div class="high">
+                <span class="label">H</span>
+                <!-- Displaying the 24-hour high price for the coin and format using angular built in pipe -->
+                <span class="value">${{ coin.high_24h | number:'1.0-2' }}</span>
+              </div>
+              <div class="low">
+                <span class="label">L</span>
+                <!-- Displaying the 24-hour low price for the coin and format using angular built in pipe -->
+                <span class="value">${{ coin.low_24h | number:'1.0-2' }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- Historical data chart for the coin with the specified coin.id -->
+          <app-historic-data [coinId]="coin.id"></app-historic-data>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

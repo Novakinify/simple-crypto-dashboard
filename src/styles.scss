@@ -1,0 +1,132 @@
+$gap: 3px; // Gap between cards
+$border-radius: 2px; // Border radius for cards
+$box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); // Box-shadow for cards
+$background-color: #23262E; // Background color for the body
+$card-padding: 10px 0px 20px 0px; // Padding inside cards
+$font-color: #FFFFFF; // Font color inside the cards
+$positive-colors: (#424C52, #415351, #42594F); // Dark to light green
+$negative-colors: (#7A4750, #82484F, #92484E); // Dark to light green
+$h2-size: 16px;
+
+body {
+    background-color: $background-color;
+    color: $font-color;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.price-container {
+    margin-top:5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .current-price {
+    flex-grow: 1;
+    h3 {
+        font-size: 28px;
+        margin: 0;
+    }
+    }
+
+    .high-low-prices {
+        display: flex;
+        flex-direction: column; // Stack H and L on top of each other
+        align-items: flex-end; // Align to the end of the flex container
+        padding:0px 10px 0px 0px;
+    p {
+        margin: 0;
+    }
+    .high, .low {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding-left:7px;
+
+            .value {
+            text-align: right;
+        }
+        }
+    }
+}
+
+.dashboard {
+display: grid;
+grid-template-columns: repeat(5, 1fr); // Three columns layout
+gap: $gap;
+padding: $gap;
+max-width: 1920px;
+margin: 20px auto;
+
+.card {
+    border-radius: $border-radius;
+    padding: $card-padding;
+    box-shadow: $box-shadow;
+    min-height: 120px;
+
+    &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 10px 0px 10px;
+
+    h2 {
+        font-size: $h2-size;
+        font-weight: normal;
+    }
+
+    h2, p {
+        margin: 0;
+    }
+    }
+
+    &-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    
+    h3 {
+        margin: $gap 0;
+        font-size: 28px;
+        padding: 0px 0px 0px 10px;
+    }
+
+    .price-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        padding: 0px 10px 0px 0px;
+    }
+    
+    p {
+        margin: 0;
+    }
+    }
+}
+}
+
+// Media queries for different screen sizes
+@media (max-width: 1599px) {
+    .dashboard {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1342px) {
+.dashboard {
+    grid-template-columns: repeat(3, 1fr);
+}
+}
+
+@media (max-width: 920px) {
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 620px) {
+    .dashboard {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
