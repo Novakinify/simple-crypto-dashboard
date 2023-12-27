@@ -29,8 +29,7 @@ To set up the project locally, follow these steps:
    ```bash
    ng serve
 
-
 After executing these commands, the project will be running on http://localhost:4200/
 
-**Usage**
+**Usage: **
 After starting the development server as mentioned above, you can view the dashboard in your web browser. The dashboard provides real-time data and statistics on various cryptocurrencies.
