@@ -44,7 +44,7 @@
   
       <div class="card-header">
         <!-- Displaying the coin symbol and setting it to uppercase -->
-        <h2>{{ coin.symbol.toUpperCase() }} (USD)</h2>
+        <h2>{{ coin.fullName }} ({{ coin.symbol.toUpperCase() }})</h2>
         <p>
           <!-- Displaying and calculating price change for the current day (in percentage and absolute terms) -->
           {{ (coin.change24Hour / (coin.price - coin.change24Hour)) * 100 | number:'1.2-2' }}% = 

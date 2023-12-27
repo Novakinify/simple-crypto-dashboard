@@ -1,6 +1,7 @@
 export interface CryptoMarket {
     symbol: string;
     price: number;
+    fullName?: string;
     high: number;
     low: number;
     change24Hour: number;

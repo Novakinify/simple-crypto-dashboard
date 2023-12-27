@@ -23,6 +23,7 @@ export class AppComponent implements OnDestroy {
   subscription!: Subscription;
   loadingSubscription!: Subscription;
   marketData: CryptoMarket[] = [];
+  coinList: any = {};
   loading: boolean = false;
 
   constructor(private cryptoCompareService: CryptoCompareService,
@@ -37,19 +38,33 @@ export class AppComponent implements OnDestroy {
   fetchMarketData() {
     this.loadingService.show();
     this.subscription = this.cryptoCompareService.fetchMarketData()
-    .subscribe({
-      next: ((response: any) => {
-        // Assigning the Coin Market Data fetched from the external API
-        this.marketData = this.cryptoCompareService.transformCryptoCompareData(response);
-      }),
-      error: (error: any) => {
-        this.loadingService.hide();
-        console.log(error, ' Error getting Coin Gecko Data');
-      }, 
-      complete: () => {
-        this.loadingService.hide();
-      }
-    });
+      .subscribe({
+        next: (response: any) => {
+          // Transform the CryptoCompare data
+          const transformedData = this.cryptoCompareService.transformCryptoCompareData(response);
+  
+          // Fetch the coin list data
+          this.cryptoCompareService.fetchCoinList().subscribe((coinListResponse) => {
+            if (coinListResponse.Response === 'Success') {
+              const coinList = coinListResponse.Data;
+  
+              // Add full names to the market data
+              this.marketData = transformedData.map((coin) => ({
+                ...coin,
+                fullName: coinList[coin.symbol].CoinName
+              }));
+            } else {
+              console.error('Failed to fetch coin list:', coinListResponse.Message);
+            }
+  
+            this.loadingService.hide();
+          });
+        },
+        error: (error: any) => {
+          this.loadingService.hide();
+          console.error('Error getting Coin Gecko Data', error);
+        }
+      });
   }
 
   trackByFn(item: any) {
@@ -80,6 +95,17 @@ export class AppComponent implements OnDestroy {
     } else {
       return getRangeColor(percentageChange, positiveColors);
     }
+  }
+
+  fetchCoinsList() {
+    this.cryptoCompareService.fetchCoinList().subscribe((response) => {
+      if (response.Response === 'Success') {
+        // Store the coin list data in coinList
+        this.coinList = response.Data;
+      } else {
+        console.error('Failed to fetch coin list:', response.Message);
+      }
+    });
   }
 
   initializeLoading() {

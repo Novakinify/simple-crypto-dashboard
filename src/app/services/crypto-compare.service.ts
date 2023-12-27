@@ -38,6 +38,7 @@ export class CryptoCompareService {
     return this.http.get(url);
   }
   
+  // it extracts the relevant data from the USD object within that entry. 
   transformCryptoCompareData(rawData: CryptoCompareResponse): CryptoMarket[] {
     const transformedData: CryptoMarket[] = [];
   
@@ -56,5 +57,10 @@ export class CryptoCompareService {
     }
   
     return transformedData;
+  }
+
+  fetchCoinList(): Observable<any> {
+    const coinListUrl = `${this.cryptoCompareBaseUrl}/data/all/coinlist`;
+    return this.http.get(coinListUrl);
   }
 }
