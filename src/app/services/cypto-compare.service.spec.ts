@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CoinGeckoService } from './coin-gecko.service';
+import { CryptoCompareService } from './crypto-compare.service';
 
 describe('CoinGeckoService', () => {
-  let service: CoinGeckoService;
+  let service: CryptoCompareService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(CoinGeckoService);
+    service = TestBed.inject(CryptoCompareService);
   });
 
   it('should be created', () => {

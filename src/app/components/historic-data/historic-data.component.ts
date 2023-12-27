@@ -1,10 +1,11 @@
 import { Component, Input, OnInit, ViewChild, ElementRef, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
-import { CoinGeckoService } from 'src/app/services/coin-gecko.service';
+import { CryptoCompareService } from 'src/app/services/crypto-compare.service';
 import { Subscription } from 'rxjs';
 
 // Chart.js
 import { Chart, registerables  } from 'chart.js';
 import 'chartjs-adapter-date-fns';
+import { HistoricData } from 'src/app/models/historic-data.model';
 Chart.register(...registerables);
 
 @Component({
@@ -13,21 +14,20 @@ Chart.register(...registerables);
   styleUrls: ['./historic-data.component.scss']
 })
 export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() coinId: string = '';
+  @Input() coinSymbol: string = '';
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
   chart: Chart | null = null;
 
   // Variables used for the historical data
-  labels: string[] = [];
-  data: number[] = [];
+  historicData: HistoricData[] = [];
 
   private dataSubscription!: Subscription;
 
-  constructor(private coinGeckoService: CoinGeckoService) {}
+  constructor(private cryptoCompareService: CryptoCompareService) {}
 
   ngOnInit(): void {
-    if (this.coinId) {
-      // Calling this method to populate the historical data when the coin id is available
+    if (this.coinSymbol) {
+      // Calling this method to populate the historical data when the coin symbol is available
       this.processHistoricData();
     } else {
       console.log('Error: Check coin id when fetching historical data')
@@ -36,7 +36,7 @@ export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     // Checks if there is a change in the coinId property. Also checks if coindId has value and it's not undefined, null or false
-    if (changes['coinId'] && this.coinId) {
+    if (changes['coinId'] && this.coinSymbol) {
       this.processHistoricData();
     }
   }
@@ -47,24 +47,22 @@ export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   processHistoricData() {
-    // We make sure there is no active subscriptions before we continue to fetch the coins last 24h data
-    if (this.dataSubscription) {
-      this.dataSubscription.unsubscribe();
-    }
-
-    if (this.coinId) {
-      // We call fetchLast24HourData from the coinGeckoService that we created and subscribe to get the data
-      this.dataSubscription = this.coinGeckoService.fetchLast24HourData(this.coinId).subscribe(data => {
-        // We assign the data separately in labels and data so we can feed the chart.
-        this.labels = data.prices.map((price: number[]) => price[0]);
-        this.data = data.prices.map((price: number[]) => price[1]);
-
-        if (this.chartCanvas && this.chartCanvas.nativeElement) {
-          // We create the chart after chartCanvas element is available
-          this.createChart();
+    this.dataSubscription = this.cryptoCompareService.fetchHourlyHistoricData(this.coinSymbol, 'USD').subscribe({
+      next: (response) => {
+        // Check if the response has a 'Data' property and that it contains a 'Data' array
+        if (response && response.Data && Array.isArray(response.Data.Data)) {
+          // Ensure that response.Data.Data is an array
+          this.historicData = response.Data.Data;
+          this.createChart(); // Create the chart now that the data is confirmed to be an array
+        } else {
+          // Log an error if the format is not as expected
+          console.error('Data is not in expected format:', response);
         }
-      });
-    }
+      },
+      error: (error) => {
+        console.error('There was an error fetching the historical data', error);
+      }
+    });
   }
 
   createChart() {
@@ -75,20 +73,24 @@ export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
     }
     
     const context = this.chartCanvas.nativeElement.getContext('2d');
+    const labels = this.historicData.map(data => new Date(data.time * 1000));
+    const dataPoints = this.historicData.map(data => data.close); // Use closing price for the chart
+    const firstLabel = labels[0] ? labels[0].toISOString() : null;
 
     // If the element is available proceed with drawing the charts
-    if (context) {
+    if (context && firstLabel) {
+
       this.chart = new Chart(context, {
         type: 'line',
         data: {
-          labels: this.labels,
+          labels: labels,
           datasets: [{
             label: 'Price',
-            data: this.data,
+            data: dataPoints,
             backgroundColor: 'rgba(0, 0, 0, 0.0)',
             borderColor: '#FFFFFF', // Line color
             borderWidth: 1,
-            pointRadius: 0, // Hide points
+            pointRadius: 0,
             pointBackgroundColor: '#ffffff', // Color for high/low points
           }]
         },
@@ -98,7 +100,7 @@ export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
           aspectRatio: 3,
           scales: {
             x: {
-              type: 'time', // Ensure the x-axis is treated as a time scale
+              type: 'time', // x-axis is treated as a time scale
               time: {
                 unit: 'hour',
                 tooltipFormat: 'HH:mm', // 24-hour format
@@ -126,13 +128,13 @@ export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
                 autoSkipPadding: 50,
                 source: 'data'
               },
-              min: this.labels[0],
+              min: labels[0].toISOString(),
             },
             y: {
               display: false,
               grid: {
-                display: false, // Set to false to hide gridlines
-                color: '#dddddd' // Light color for gridlines
+                display: false,
+                color: '#dddddd'
               },
             },
           },
@@ -158,7 +160,7 @@ export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
           },
           elements: {
             line: {
-              tension: 0.3 // Makes the line a bit curved. Set to 0 for straight lines.
+              tension: 0.1 // Makes the line a bit curved. Set to 0 for straight lines.
             }
           }
         }
@@ -169,7 +171,6 @@ export class HistoricDataComponent implements OnInit, OnChanges, OnDestroy {
   }
   
   ngOnDestroy() {
-    // Unsubscribe to avoid memory leaks
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
     }

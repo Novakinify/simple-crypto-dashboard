@@ -1,17 +1,60 @@
 export interface CryptoMarket {
-    id: string;
     symbol: string;
-    name: string;
-    image: string;
-    current_price: number;
-    market_cap: number;
-    market_cap_rank: number;
-    total_volume: number;
-    high_24h: number;
-    low_24h: number;
-    price_change_24h: number;
-    price_change_percentage_24h: number;
-    previousPrice?: string;
-    absoluteChange?: string;
-    percentageChange?: string;
+    price: number;
+    high: number;
+    low: number;
+    change24Hour: number;
+    open24Hour: number;
+    mktcap: number;
+    imageUrl: string;
+}
+
+export interface CryptoCompareResponse {
+    RAW: {
+    [key: string]: {
+        USD: {
+        TYPE: string;
+        MARKET: string;
+        FROMSYMBOL: string;
+        TOSYMBOL: string;
+        FLAGS: string;
+        LASTMARKET: string;
+        MEDIAN: number;
+        VOLUME24HOUR: number;
+        VOLUME24HOURTO: number;
+        LASTTRADEID: string;
+        PRICE: number;
+        LASTUPDATE: number;
+        LASTVOLUME: number;
+        LASTVOLUMETO: number;
+        VOLUMEHOUR: number;
+        VOLUMEHOURTO: number;
+        OPENHOUR: number;
+        HIGHHOUR: number;
+        LOWHOUR: number;
+        VOLUMEDAY: number;
+        VOLUMEDAYTO: number;
+        OPENDAY: number;
+        HIGHDAY: number;
+        LOWDAY: number;
+        CHANGE24HOUR: number;
+        CHANGEPCT24HOUR: number;
+        CHANGEDAY: number;
+        CHANGEPCTDAY: number;
+        CHANGEHOUR: number;
+        CHANGEPCTHOUR: number;
+        CONVERSIONTYPE: string;
+        CONVERSIONSYMBOL: string;
+        SUPPLY: number;
+        MKTCAP: number;
+        MKTCAPPENALTY: number;
+        CIRCULATINGSUPPLY: number;
+        TOTALVOLUME24H: number;
+        TOTALVOLUME24HTO: number;
+        TOTALTOPTIERVOLUME24H: number;
+        TOTALTOPTIERVOLUME24HTO: number;
+        IMAGEURL: string;
+        };
+    };
+    };
 }

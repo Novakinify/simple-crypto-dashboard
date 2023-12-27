@@ -1,8 +1,9 @@
 import { Component, OnDestroy } from '@angular/core';
-import { CoinGeckoService } from './services/coin-gecko.service';
+import { CryptoCompareService } from './services/crypto-compare.service';
 import { CryptoMarket } from './models/crypto-market.model';
 import { Subscription } from 'rxjs';
 import { style, transition, trigger, animate } from '@angular/animations';
+import { LoadingService } from './services/loading.service';
 
 @Component({
   selector: 'app-root',
@@ -20,27 +21,39 @@ import { style, transition, trigger, animate } from '@angular/animations';
 
 export class AppComponent implements OnDestroy {
   subscription!: Subscription;
+  loadingSubscription!: Subscription;
   marketData: CryptoMarket[] = [];
+  loading: boolean = false;
 
-  constructor(private coinGeckoService: CoinGeckoService) {
+  constructor(private cryptoCompareService: CryptoCompareService,
+              public loadingService: LoadingService) {
     // Calling the fetchMarketData() method to fetch the coin market data on page load
+    this.initializeLoading();
     this.fetchMarketData();
   }
 
-  title = 'bittensor';
+  title = 'Crypto Dashboard';
 
   fetchMarketData() {
-    this.subscription = this.coinGeckoService.fetchMarketData()
+    this.loadingService.show();
+    this.subscription = this.cryptoCompareService.fetchMarketData()
     .subscribe({
-      next: (response => {
+      next: ((response: any) => {
         // Assigning the Coin Market Data fetched from the external API
-        this.marketData = response;
+        this.marketData = this.cryptoCompareService.transformCryptoCompareData(response);
       }),
-      error: (error => {
-        // Not showing errors in a alert or any other visual representation done on purpose. Because of free api calls limit.
+      error: (error: any) => {
+        this.loadingService.hide();
         console.log(error, ' Error getting Coin Gecko Data');
-      })
+      }, 
+      complete: () => {
+        this.loadingService.hide();
+      }
     });
+  }
+
+  trackByFn(item: any) {
+    return item.symbol;
   }
 
   getPercentageColor(percentageChange: number): string {
@@ -69,18 +82,22 @@ export class AppComponent implements OnDestroy {
     }
   }
 
-  // Utility function to format the date, usually I create utility service for handling utility functions.
-  formatDateForApi(date: Date): string {
-    // Format the date as 'DD-MM-YYYY'
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`
+  initializeLoading() {
+    this.loadingSubscription = this.loadingService.isLoading.subscribe((isLoading) => {
+      if (isLoading) {
+        this.loading = true;
+      } else {
+        if (this.loading) {
+          this.loading = false;
+        }
+      }
+    });
   }
-  
 
   ngOnDestroy(): void {
-    // Unsubscribing from the fetchMarketData to prevent any memory leaks
     this.subscription.unsubscribe();
+    if (this.loadingSubscription) {
+      this.loadingSubscription.unsubscribe();
+    }
   }
 }
