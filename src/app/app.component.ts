@@ -1,3 +1,17 @@
+/**
+ * Crypto Dashboard Application
+ * 
+ * This application is a real-time dashboard displaying cryptocurrency data.
+ * It's designed to provide users with up-to-the-minute information on various
+ * cryptocurrencies in a visually engaging format.
+ * 
+ * Created by: Aleksandar Trajkovski
+ * Date: 12/27/2023
+ * Version: 1.0
+ * 
+ * Note: This application is developed for the purpose of technical challenge.
+ */
+
 import { Component, OnDestroy } from '@angular/core';
 import { CryptoCompareService } from './services/crypto-compare.service';
 import { CryptoMarket } from './models/crypto-market.model';
@@ -40,8 +54,10 @@ export class AppComponent implements OnDestroy {
     this.subscription = this.cryptoCompareService.fetchMarketData()
       .subscribe({
         next: (response: any) => {
+          console.log(response, ' RESPONSE')
           // Transform the CryptoCompare data
           const transformedData = this.cryptoCompareService.transformCryptoCompareData(response);
+
   
           // Fetch the coin list data
           this.cryptoCompareService.fetchCoinList().subscribe((coinListResponse) => {

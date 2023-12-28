@@ -1,26 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { CryptoCompareResponse, CryptoMarket } from '../models/crypto-market.model';
+import { environment } from 'src/environments/environment';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class CryptoCompareService {
-  private cryptoCompareBaseUrl = 'https://min-api.cryptocompare.com';
-  private apiKey = 'c66ad3ade96305d9d6fd64fad01b2b3783e01da48e4508d8c6048be820c86165';
 
   constructor(private http: HttpClient) { }
 
   fetchMarketData(): Observable<CryptoMarket[]> {
     const endpoint = '/data/pricemultifull';
     const symbols = 'BTC,ETH,XRP,DOGE,DOT,LTC,ADA,STETH,AVAX,MATIC,TRX,LINK,SOL,BNB,BCH';
-    const currencies = 'USD';
-    const url = `${this.cryptoCompareBaseUrl}${endpoint}?fsyms=${symbols}&tsyms=${currencies}&api_key=${this.apiKey}`;
-
+    const url = `${environment.cryptoCompareBaseUrl}${endpoint}?fsyms=${symbols}&tsyms=USD&api_key=${environment.apiKey}`;
+  
     return this.http.get<any>(url).pipe(
-      map(response => response.RAW)
+      map(response => response.RAW),
+      catchError(this.handleError<CryptoMarket[]>('fetchMarketData', []))
     );
   }
 
@@ -31,9 +30,8 @@ export class CryptoCompareService {
       .set('fsym', coinSymbol)
       .set('tsym', comparisonSymbol)
       .set('limit', limit.toString());
-  
-    const apiKey = 'c66ad3ade96305d9d6fd64fad01b2b3783e01da48e4508d8c6048be820c86165';
-    const url = `${this.cryptoCompareBaseUrl}${endpoint}?api_key=${apiKey}&${params}`;
+
+    const url = `${environment.cryptoCompareBaseUrl}${endpoint}?api_key=${environment.apiKey}&${params}`;
   
     return this.http.get(url);
   }
@@ -60,7 +58,23 @@ export class CryptoCompareService {
   }
 
   fetchCoinList(): Observable<any> {
-    const coinListUrl = `${this.cryptoCompareBaseUrl}/data/all/coinlist`;
+    const coinListUrl = `${environment.cryptoCompareBaseUrl}/data/all/coinlist`;
     return this.http.get(coinListUrl);
+  }
+
+  // Generic method used to handle errors
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.error(error);
+  
+      this.log(`${operation} failed: ${error.message}`);
+  
+      // Keep running by returning an empty result.
+      return of(result as T);
+    };
+  }
+
+  private log(message: string) {
+    console.log(`CryptoService: ${message}`);
   }
 }
