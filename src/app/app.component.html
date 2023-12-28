@@ -37,6 +37,12 @@
 </head>
 <body>
   <div *ngIf="loading" class="loading"></div>
+  
+  <div class="dashboard-title">
+    <h1>CryptoSphere Dashboard v1.0</h1>
+    <p>Real-time Cryptocurrency Market Insights</p>
+  </div>
+
   <div class="dashboard" *ngIf="!loading">
     <!-- Looping through the coin market data using Angular's built-in *ngFor Directive -->
     <div *ngFor="let coin of marketData" class="card" @cardAnimation
